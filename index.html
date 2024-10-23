@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Processor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Upload CSV File</h1>
+    <input type="file" id="csvFile" accept=".csv">
+    <button id="processButton">Process CSV</button>
+    <div class="error" id="errorMessage"></div>
+    <a id="downloadLink" style="display: none;">Download Processed CSV</a>
+</div>
+
+<script>
+    document.getElementById('processButton').onclick = async function () {
+        const fileInput = document.getElementById('csvFile');
+        const errorMessage = document.getElementById('errorMessage');
+        const downloadLink = document.getElementById('downloadLink');
+
+        errorMessage.innerText = '';  // Clear previous errors
+        downloadLink.style.display = 'none';  // Hide download link
+
+        if (fileInput.files.length === 0) {
+            errorMessage.innerText = 'Please select a CSV file.';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        try {
+            const response = await fetch('https://your-fastapi-url/process-csv/', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to process the CSV file.');
+            }
+
+            // Create a URL for the downloaded file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.download = 'processed_file.csv';
+            downloadLink.innerText = 'Download Processed CSV';
+            downloadLink.style.display = 'block';
+        } catch (error) {
+            errorMessage.innerText = error.message;
+        }
+    };
+</script>
+
+</body>
+</html>
