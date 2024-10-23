@@ -1,11 +1,16 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 import pandas as pd
 import numpy as np
 import os
 import shutil
 
 app = FastAPI()
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    with open("index.html") as f:
+        return f.read()
 
 # Sample CSV creation for demonstration
 @app.get("/create-sample-csv")
